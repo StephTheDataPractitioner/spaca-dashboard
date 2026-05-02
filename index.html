@@ -1,0 +1,1100 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SPACA Youth Fellowship — Executive Dashboard 2026</title>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;600;700&family=Outfit:wght@300;400;500;600&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.0/chart.umd.min.js"></script>
+<style>
+:root {
+  --red:      #C0232A;
+  --red-dim:  #8B1A1F;
+  --red-glow: rgba(192,35,42,0.15);
+  --gold:     #C9952A;
+  --green:    #2A7A52;
+  --ink:      #0E0E0E;
+  --ink2:     #1C1C1C;
+  --ink3:     #2A2A2A;
+  --border:   #2E2E2E;
+  --muted:    #666;
+  --dim:      #444;
+  --light:    #F5F0EE;
+  --white:    #FFFFFF;
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+
+body {
+  font-family: 'Outfit', sans-serif;
+  background: var(--ink);
+  color: var(--light);
+  min-height: 100vh;
+  overflow-x: hidden;
+}
+
+/* ── NOISE TEXTURE OVERLAY ── */
+body::before {
+  content:'';
+  position:fixed;inset:0;
+  background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.03'/%3E%3C/svg%3E");
+  pointer-events:none;z-index:0;opacity:.4;
+}
+
+/* ── HEADER ── */
+.masthead {
+  position:relative;
+  background: linear-gradient(135deg, #0E0E0E 0%, #1A0608 60%, #0E0E0E 100%);
+  border-bottom: 1px solid var(--border);
+  padding: 0;
+  overflow: hidden;
+}
+.masthead::after {
+  content:'';
+  position:absolute;bottom:0;left:0;right:0;height:2px;
+  background: linear-gradient(90deg, transparent, var(--red), transparent);
+}
+.masthead-inner {
+  display:grid;
+  grid-template-columns: 1fr auto;
+  align-items:center;
+  padding: 28px 36px;
+  gap: 20px;
+  position:relative;z-index:1;
+}
+.masthead-left {}
+.church-label {
+  font-size: 10px;
+  letter-spacing: 4px;
+  text-transform: uppercase;
+  color: var(--red);
+  font-weight: 600;
+  margin-bottom: 6px;
+}
+.masthead-title {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 36px;
+  font-weight: 700;
+  color: var(--white);
+  line-height: 1;
+  letter-spacing: -0.5px;
+}
+.masthead-title em { color: var(--red); font-style: normal; }
+.masthead-sub {
+  font-size: 12px;
+  color: var(--muted);
+  margin-top: 6px;
+  letter-spacing: .5px;
+}
+.masthead-right {
+  display:flex;
+  gap:8px;
+}
+.month-pill {
+  background: var(--ink3);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  padding: 8px 14px;
+  text-align:center;
+  cursor: pointer;
+  transition: all .2s;
+}
+.month-pill:hover, .month-pill.active {
+  background: var(--red);
+  border-color: var(--red);
+}
+.month-pill .m { font-size: 10px; letter-spacing: 2px; text-transform:uppercase; color: rgba(255,255,255,.6); }
+.month-pill .y { font-family:'Cormorant Garamond',serif; font-size:20px; font-weight:700; color:#fff; line-height:1; }
+.month-pill.active .m { color:rgba(255,255,255,.8); }
+
+/* ── NAV ── */
+.nav {
+  background: var(--ink2);
+  border-bottom: 1px solid var(--border);
+  display:flex;
+  gap:0;
+  padding: 0 36px;
+  position: sticky;
+  top:0;
+  z-index:100;
+}
+.nav-btn {
+  background:none;border:none;
+  font-family:'Outfit',sans-serif;
+  font-size:11px;font-weight:500;
+  letter-spacing:1.5px;text-transform:uppercase;
+  color:var(--dim);
+  padding:14px 20px;
+  cursor:pointer;
+  border-bottom:2px solid transparent;
+  margin-bottom:-1px;
+  transition:all .2s;
+  white-space:nowrap;
+}
+.nav-btn:hover{color:#aaa;}
+.nav-btn.active{color:var(--red);border-bottom-color:var(--red);}
+
+/* ── MAIN ── */
+.main { padding: 28px 36px; max-width:1500px; margin:0 auto; position:relative;z-index:1; }
+.tab-panel{display:none;}
+.tab-panel.active{display:block;animation:fadeUp .3s ease both;}
+
+@keyframes fadeUp{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:translateY(0)}}
+
+/* ── GRIDS ── */
+.g4{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-bottom:18px;}
+.g3{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-bottom:18px;}
+.g2{display:grid;grid-template-columns:repeat(2,1fr);gap:14px;margin-bottom:18px;}
+.g21{display:grid;grid-template-columns:2fr 1fr;gap:14px;margin-bottom:18px;}
+.g12{display:grid;grid-template-columns:1fr 2fr;gap:14px;margin-bottom:18px;}
+
+/* ── SECTION HEADER ── */
+.sec-head {
+  display:flex;align-items:center;gap:10px;
+  margin-bottom:14px;margin-top:6px;
+}
+.sec-head .slash{
+  font-family:'Cormorant Garamond',serif;
+  font-size:22px;color:var(--red);font-weight:700;
+}
+.sec-head h2{
+  font-family:'Cormorant Garamond',serif;
+  font-size:20px;font-weight:700;color:var(--white);
+}
+.sec-head .badge{
+  margin-left:auto;
+  font-size:10px;letter-spacing:1px;text-transform:uppercase;
+  color:var(--muted);
+  background:var(--ink3);
+  border:1px solid var(--border);
+  padding:3px 10px;border-radius:20px;
+}
+
+/* ── STAT CARDS ── */
+.stat {
+  background:var(--ink2);
+  border:1px solid var(--border);
+  border-radius:10px;
+  padding:20px;
+  position:relative;overflow:hidden;
+  transition:transform .15s,box-shadow .15s;
+}
+.stat:hover{transform:translateY(-2px);box-shadow:0 8px 24px rgba(0,0,0,.4);}
+.stat::before{
+  content:'';position:absolute;top:0;left:0;right:0;height:2px;
+  background:var(--accent,var(--red));
+}
+.stat .ico{font-size:20px;margin-bottom:8px;display:block;}
+.stat .val{
+  font-family:'Cormorant Garamond',serif;
+  font-size:34px;font-weight:700;
+  color:var(--accent,var(--red));line-height:1;
+}
+.stat .lbl{font-size:10px;text-transform:uppercase;letter-spacing:1px;color:var(--muted);margin-top:4px;}
+.stat .sub{font-size:11px;color:var(--dim);margin-top:6px;line-height:1.4;}
+.stat.inv{background:var(--red);border-color:var(--red-dim);}
+.stat.inv::before{background:var(--red-dim);}
+.stat.inv .val,.stat.inv .lbl,.stat.inv .sub,.stat.inv .ico{color:#fff;}
+
+/* ── PANEL ── */
+.panel {
+  background:var(--ink2);
+  border:1px solid var(--border);
+  border-radius:10px;
+  padding:20px;
+  margin-bottom:18px;
+}
+.panel-title {
+  font-size:10px;font-weight:600;
+  text-transform:uppercase;letter-spacing:1.5px;
+  color:var(--muted);
+  margin-bottom:14px;
+  padding-bottom:10px;
+  border-bottom:1px solid var(--border);
+  display:flex;align-items:center;gap:8px;
+}
+.panel-title .dot{width:6px;height:6px;border-radius:50%;background:var(--red);flex-shrink:0;}
+
+/* ── PILLS ── */
+.pill{display:inline-block;padding:2px 9px;border-radius:20px;font-size:10px;font-weight:600;letter-spacing:.5px;text-transform:uppercase;}
+.pill.res{background:rgba(42,122,82,.2);color:#4CAF82;border:1px solid rgba(42,122,82,.3);}
+.pill.pen{background:rgba(201,149,42,.15);color:var(--gold);border:1px solid rgba(201,149,42,.25);}
+.pill.urg{background:rgba(192,35,42,.15);color:#EF5350;border:1px solid rgba(192,35,42,.25);}
+.pill.kiv{background:rgba(57,73,171,.15);color:#7986CB;border:1px solid rgba(57,73,171,.25);}
+.pill.new{background:var(--red);color:#fff;border:1px solid var(--red-dim);}
+
+/* ── TIMELINE ── */
+.tl{display:flex;flex-direction:column;gap:0;}
+.tl-item{display:flex;gap:14px;padding-bottom:16px;position:relative;}
+.tl-item:not(:last-child)::after{
+  content:'';position:absolute;
+  left:14px;top:30px;bottom:0;
+  width:1px;background:var(--border);
+}
+.tl-dot{
+  width:28px;height:28px;border-radius:50%;
+  background:var(--red);color:#fff;
+  display:flex;align-items:center;justify-content:center;
+  font-size:10px;font-weight:700;flex-shrink:0;
+  font-family:'Outfit',sans-serif;
+}
+.tl-dot.g{background:var(--green);}
+.tl-dot.o{background:var(--gold);}
+.tl-body{flex:1;padding-top:3px;}
+.tl-title{font-size:12.5px;font-weight:600;color:var(--light);margin-bottom:2px;}
+.tl-desc{font-size:11.5px;color:var(--dim);line-height:1.5;}
+
+/* ── DECISION BOX ── */
+.dec {
+  border-left:3px solid var(--red);
+  background:rgba(192,35,42,.07);
+  padding:10px 14px;
+  border-radius:0 6px 6px 0;
+  margin-top:8px;
+  font-size:12px;line-height:1.6;color:var(--light);
+}
+.dec strong{color:var(--red);}
+
+/* ── TABLES ── */
+.tbl{width:100%;border-collapse:collapse;font-size:12.5px;}
+.tbl th{
+  text-align:left;
+  font-size:10px;text-transform:uppercase;letter-spacing:1px;
+  color:var(--muted);
+  padding:8px 10px;
+  border-bottom:1px solid var(--border);
+  font-weight:600;
+}
+.tbl td{
+  padding:9px 10px;
+  border-bottom:1px solid rgba(255,255,255,.04);
+  color:var(--light);
+  vertical-align:middle;
+}
+.tbl tr:last-child td{border-bottom:none;}
+.tbl tr:hover td{background:rgba(255,255,255,.03);}
+
+.fines-tbl{width:100%;border-collapse:collapse;font-size:12px;}
+.fines-tbl th{
+  background:var(--ink3);color:var(--muted);
+  text-align:left;padding:9px 12px;
+  font-size:10px;text-transform:uppercase;letter-spacing:1px;font-weight:600;
+  border-bottom:1px solid var(--border);
+}
+.fines-tbl td{padding:9px 12px;border-bottom:1px solid rgba(255,255,255,.04);color:var(--light);}
+.fines-tbl tr:nth-child(even) td{background:rgba(255,255,255,.02);}
+.fines-tbl tr:hover td{background:rgba(192,35,42,.06);}
+.fines-tbl .amt{font-weight:700;color:var(--red);}
+.fines-tbl .amt.p{color:var(--gold);}
+
+.members-tbl{width:100%;border-collapse:collapse;font-size:12px;}
+.members-tbl th{
+  background:var(--red);color:#fff;
+  text-align:left;padding:9px 12px;
+  font-size:10px;text-transform:uppercase;letter-spacing:1px;font-weight:600;
+}
+.members-tbl td{padding:7px 12px;border-bottom:1px solid rgba(255,255,255,.05);color:var(--light);}
+.members-tbl tr:nth-child(even) td{background:rgba(255,255,255,.02);}
+.members-tbl .num{text-align:center;color:var(--muted);font-size:11px;font-weight:700;}
+.members-tbl .coord{color:var(--red);font-weight:700;}
+
+/* ── UNIT CARDS ── */
+.unit-card{
+  background:var(--ink2);
+  border:1px solid var(--border);
+  border-left:3px solid var(--uc,var(--border));
+  border-radius:10px;padding:16px;
+  transition:transform .15s;
+}
+.unit-card:hover{transform:translateY(-2px);}
+.unit-name{font-size:13px;font-weight:600;color:var(--white);margin-bottom:4px;}
+.unit-lead{font-size:11px;color:var(--muted);margin-bottom:10px;}
+.unit-items{list-style:none;display:flex;flex-direction:column;gap:5px;}
+.unit-items li{font-size:11.5px;color:var(--dim);display:flex;align-items:flex-start;gap:6px;line-height:1.5;}
+.unit-items li::before{content:'›';color:var(--uc,var(--red));font-size:14px;flex-shrink:0;margin-top:-1px;}
+
+/* ── FINANCE BARS ── */
+.fin-row{margin-bottom:14px;}
+.fin-row .top{display:flex;justify-content:space-between;align-items:baseline;margin-bottom:5px;}
+.fin-row .name{font-size:12px;color:var(--light);}
+.fin-row .amt{font-family:'Cormorant Garamond',serif;font-size:14px;font-weight:700;color:var(--red);}
+.fin-row .track{height:4px;background:var(--ink3);border-radius:2px;overflow:hidden;}
+.fin-row .fill{height:100%;border-radius:2px;transition:width 1s ease;}
+.fill.r{background:var(--red);}
+.fill.g{background:var(--green);}
+.fill.o{background:var(--gold);}
+
+/* ── MONTH SELECTOR ── */
+.month-selector {
+  display:flex;gap:8px;margin-bottom:18px;
+}
+.ms-btn {
+  background:var(--ink3);
+  border:1px solid var(--border);
+  border-radius:6px;
+  padding:6px 16px;
+  font-family:'Outfit',sans-serif;
+  font-size:11px;font-weight:500;
+  letter-spacing:.5px;
+  color:var(--dim);
+  cursor:pointer;
+  transition:all .2s;
+}
+.ms-btn:hover{color:var(--light);border-color:var(--muted);}
+.ms-btn.active{background:var(--red);border-color:var(--red);color:#fff;}
+
+/* ── CHART ── */
+.chart-wrap{position:relative;height:210px;}
+.chart-sm{position:relative;height:170px;}
+
+/* ── DIVIDER ── */
+.div{height:1px;background:var(--border);margin:16px 0;}
+
+/* ── RESPONSIVE ── */
+@media(max-width:960px){
+  .g4{grid-template-columns:repeat(2,1fr);}
+  .g3{grid-template-columns:repeat(2,1fr);}
+  .g21,.g12{grid-template-columns:1fr;}
+  .main{padding:16px;}
+  .masthead-inner{grid-template-columns:1fr;gap:14px;}
+  .masthead-right{flex-wrap:wrap;}
+  .nav{padding:0 16px;overflow-x:auto;}
+  .nav-btn{padding:12px 14px;font-size:10px;}
+}
+@media(max-width:600px){
+  .g4,.g3,.g2{grid-template-columns:1fr;}
+  .masthead-title{font-size:26px;}
+}
+</style>
+</head>
+<body>
+
+<!-- MASTHEAD -->
+<div class="masthead">
+  <div class="masthead-inner">
+    <div class="masthead-left">
+      <div class="church-label">Saint Paul's Anglican Church Ajaguro</div>
+      <div class="masthead-title">SPACA <em>Youth</em> Fellowship</div>
+      <div class="masthead-sub">Executive Meeting Dashboard &nbsp;·&nbsp; February – April 2026</div>
+    </div>
+    <div class="masthead-right">
+      <div class="month-pill active" onclick="setMonth('feb',this)">
+        <div class="m">Feb</div><div class="y">2026</div>
+      </div>
+      <div class="month-pill" onclick="setMonth('mar',this)">
+        <div class="m">Mar</div><div class="y">2026</div>
+      </div>
+      <div class="month-pill" onclick="setMonth('apr',this)">
+        <div class="m">Apr</div><div class="y">2026</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- NAV -->
+<div class="nav">
+  <button class="nav-btn active" onclick="switchTab('overview',this)">Overview</button>
+  <button class="nav-btn" onclick="switchTab('finance',this)">Finance</button>
+  <button class="nav-btn" onclick="switchTab('units',this)">Unit Reports</button>
+  <button class="nav-btn" onclick="switchTab('actions',this)">Action Items</button>
+  <button class="nav-btn" onclick="switchTab('fines',this)">Fines</button>
+  <button class="nav-btn" onclick="switchTab('members',this)">Members</button>
+</div>
+
+<div class="main">
+
+<!-- ═══════════════════ OVERVIEW ═══════════════════ -->
+<div class="tab-panel active" id="tab-overview">
+
+  <div class="g4">
+    <div class="stat inv">
+      <span class="ico">🏛️</span>
+      <div class="val">3</div>
+      <div class="lbl">Meetings Held</div>
+      <div class="sub">Feb 1 · Mar 1 · Apr 12, 2026</div>
+    </div>
+    <div class="stat" style="--accent:var(--green)">
+      <span class="ico">👥</span>
+      <div class="val">27</div>
+      <div class="lbl">Total Executives</div>
+      <div class="sub">Full exco list incl. Ex-Officio</div>
+    </div>
+    <div class="stat" style="--accent:var(--gold)">
+      <span class="ico">⚖️</span>
+      <div class="val">₦7,500</div>
+      <div class="lbl">Total Fines Issued</div>
+      <div class="sub">Feb ₦3,500 · Mar ₦500 · Apr ₦3,500</div>
+    </div>
+    <div class="stat" style="--accent:#7986CB">
+      <span class="ico">✅</span>
+      <div class="val">7</div>
+      <div class="lbl">Active Units</div>
+      <div class="sub">Prayer · Choir · Program · Technical · Ushering · PR · Welfare</div>
+    </div>
+  </div>
+
+  <!-- Month-aware highlight panel -->
+  <div class="g2">
+    <div class="panel" id="highlight-panel">
+      <div class="panel-title"><span class="dot"></span><span id="highlight-title">February 1, 2026 — Key Highlights</span></div>
+      <div class="tl" id="highlight-tl"></div>
+    </div>
+
+    <div>
+      <div class="panel">
+        <div class="panel-title"><span class="dot"></span>Attendance Trend (3 Months)</div>
+        <div class="chart-wrap"><canvas id="attendChart"></canvas></div>
+      </div>
+      <div class="panel">
+        <div class="panel-title"><span class="dot"></span>Fines Issued per Meeting</div>
+        <div class="chart-sm"><canvas id="finesChart"></canvas></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="g2">
+    <div class="panel">
+      <div class="panel-title"><span class="dot"></span>Open Issues by Unit</div>
+      <div class="chart-wrap"><canvas id="issuesChart"></canvas></div>
+    </div>
+    <div class="panel">
+      <div class="panel-title"><span class="dot"></span>Issue Status Overview (All Months)</div>
+      <div class="chart-wrap"><canvas id="statusChart"></canvas></div>
+    </div>
+  </div>
+
+</div><!-- /overview -->
+
+
+<!-- ═══════════════════ FINANCE ═══════════════════ -->
+<div class="tab-panel" id="tab-finance">
+
+  <div class="g4">
+    <div class="stat inv">
+      <span class="ico">🏦</span>
+      <div class="val">₦1.19M</div>
+      <div class="lbl">Bank Balance (Feb Close)</div>
+      <div class="sub">₦1,185,952.06 — FCMB</div>
+    </div>
+    <div class="stat" style="--accent:var(--green)">
+      <span class="ico">💵</span>
+      <div class="val">₦107,760</div>
+      <div class="lbl">Cash at Hand (Feb)</div>
+      <div class="sub">After all February expenditure</div>
+    </div>
+    <div class="stat" style="--accent:var(--gold)">
+      <span class="ico">💱</span>
+      <div class="val">$59</div>
+      <div class="lbl">USD Holdings</div>
+      <div class="sub">@ ₦1,340/$1 · Transfer in progress</div>
+    </div>
+    <div class="stat" style="--accent:#EF5350">
+      <span class="ico">📉</span>
+      <div class="val">₦4,200</div>
+      <div class="lbl">L&R Programme Deficit</div>
+      <div class="sub">Love & Relationship event — Feb 15</div>
+    </div>
+  </div>
+
+  <div class="g2">
+    <div class="panel">
+      <div class="panel-title"><span class="dot"></span>February Income Breakdown</div>
+      <div class="chart-wrap"><canvas id="incomeChart"></canvas></div>
+    </div>
+    <div class="panel">
+      <div class="panel-title"><span class="dot"></span>February Expenditure Breakdown</div>
+      <div class="chart-wrap"><canvas id="expendChart"></canvas></div>
+    </div>
+  </div>
+
+  <div class="panel">
+    <div class="panel-title"><span class="dot"></span>February 2026 — Full Financial Summary</div>
+    <div class="g2">
+      <div>
+        <div style="font-size:11px;text-transform:uppercase;letter-spacing:1px;color:var(--green);margin-bottom:12px;font-weight:600;">Income</div>
+        <div class="fin-row">
+          <div class="top"><span class="name">Bank Donations</span><span class="amt">₦764,016</span></div>
+          <div class="track"><div class="fill g" style="width:100%"></div></div>
+        </div>
+        <div class="fin-row">
+          <div class="top"><span class="name">Cash Received</span><span class="amt">₦33,100</span></div>
+          <div class="track"><div class="fill g" style="width:4%"></div></div>
+        </div>
+        <div class="fin-row">
+          <div class="top"><span class="name">Opening Cash (Jan)</span><span class="amt">₦20,600</span></div>
+          <div class="track"><div class="fill g" style="width:3%"></div></div>
+        </div>
+        <div class="fin-row">
+          <div class="top"><span class="name">FCMB Interest</span><span class="amt">₦3,048.89</span></div>
+          <div class="track"><div class="fill o" style="width:0.5%"></div></div>
+        </div>
+      </div>
+      <div>
+        <div style="font-size:11px;text-transform:uppercase;letter-spacing:1px;color:var(--red);margin-bottom:12px;font-weight:600;">Expenditure</div>
+        <div class="fin-row">
+          <div class="top"><span class="name">Instrumental Support</span><span class="amt">₦80,000</span></div>
+          <div class="track"><div class="fill r" style="width:100%"></div></div>
+        </div>
+        <div class="fin-row">
+          <div class="top"><span class="name">January Birthday Cake</span><span class="amt">₦25,000</span></div>
+          <div class="track"><div class="fill r" style="width:31%"></div></div>
+        </div>
+        <div class="fin-row">
+          <div class="top"><span class="name">Drumstick Purchase</span><span class="amt">₦9,500</span></div>
+          <div class="track"><div class="fill r" style="width:12%"></div></div>
+        </div>
+        <div class="fin-row">
+          <div class="top"><span class="name">Bank Charges</span><span class="amt">₦1,465.47</span></div>
+          <div class="track"><div class="fill o" style="width:2%"></div></div>
+        </div>
+      </div>
+    </div>
+    <div class="div"></div>
+    <div class="g2">
+      <div class="dec"><strong>Cymbal (April):</strong> Purchased for ₦120,000 by Choir Unit internally. 50% reimbursement (₦60,000) confirmed from Tobe Akaogu. Church contribution also confirmed.</div>
+      <div class="dec"><strong>Offering Split:</strong> 60% remitted to main church · 40% retained by fellowship treasury. USD $20 from previous tenure still outstanding.</div>
+    </div>
+  </div>
+
+</div><!-- /finance -->
+
+
+<!-- ═══════════════════ UNIT REPORTS ═══════════════════ -->
+<div class="tab-panel" id="tab-units">
+
+  <div class="month-selector">
+    <button class="ms-btn active" onclick="filterUnits('all',this)">All Months</button>
+    <button class="ms-btn" onclick="filterUnits('feb',this)">February</button>
+    <button class="ms-btn" onclick="filterUnits('mar',this)">March</button>
+    <button class="ms-btn" onclick="filterUnits('apr',this)">April</button>
+  </div>
+
+  <div class="g3" id="units-grid">
+    <div class="unit-card" style="--uc:var(--red)" data-months="feb mar apr">
+      <div class="unit-name">🎵 Choir Unit</div>
+      <div class="unit-lead">Music Director: Miracle Kuforiji</div>
+      <ul class="unit-items">
+        <li>50% punctuality improvement (Feb)</li>
+        <li>Vocal coach ₦30K/month — <span class="pill kiv">KIV Funding</span></li>
+        <li>Drum booth backdrop modified (Mar)</li>
+        <li>Cymbal purchased ₦120K — reimbursed Apr <span class="pill res">Resolved</span></li>
+        <li>Floor monitors resolved (Apr) <span class="pill res">Closed</span></li>
+        <li>Wireless in-ear monitor <span class="pill kiv">KIV</span></li>
+        <li>No outstanding requests as of April</li>
+      </ul>
+    </div>
+    <div class="unit-card" style="--uc:var(--green)" data-months="feb mar apr">
+      <div class="unit-name">🙏 Prayer & Evangelism Unit</div>
+      <div class="unit-lead">Coordinator: Chibuike Precious</div>
+      <ul class="unit-items">
+        <li>Weekly Bible study & prayer facilitation maintained</li>
+        <li>Virtual escort prayers active</li>
+        <li>Adulam programme held (Mar & Apr editions)</li>
+        <li>15 members · 9 meetings in March</li>
+        <li>Improved exec participation in Tuesday prayers (Apr)</li>
+        <li>Prayer rotation amongst unit heads approved (Apr)</li>
+        <li>Roster to be drawn up by Prayer Unit Coordinator</li>
+      </ul>
+    </div>
+    <div class="unit-card" style="--uc:#3949AB" data-months="feb mar apr">
+      <div class="unit-name">📋 Program Unit</div>
+      <div class="unit-lead">Coordinator: Ademola Olatunji</div>
+      <ul class="unit-items">
+        <li>All services coordinated — Jan, Feb, Mar</li>
+        <li>Love & Relationship 2.0 held Feb 15 — ₦4,200 deficit</li>
+        <li>Denim Sunday approved with spiritual caution</li>
+        <li>Time management enforced — slots are fixed (Mar)</li>
+        <li>Head Usher to signal speakers on time (Apr)</li>
+        <li>Phone timers encouraged for self-management</li>
+        <li>"Old School Sunday" (last Sun Apr) — not yet confirmed</li>
+      </ul>
+    </div>
+    <div class="unit-card" style="--uc:var(--gold)" data-months="feb mar apr">
+      <div class="unit-name">🎤 Technical Unit</div>
+      <div class="unit-lead">Technical Director: Rolland Eze</div>
+      <ul class="unit-items">
+        <li>Wired mics phased out (Feb)</li>
+        <li>Snake cable purchased (Apr) <span class="pill res">Resolved</span></li>
+        <li>Floor monitors resolved (Apr) <span class="pill res">Resolved</span></li>
+        <li>Live streaming being stabilised</li>
+        <li>Mic rack needed (not stand — corrected Mar)</li>
+        <li>Sound system servicing ~₦70,000 <span class="pill urg">Pending</span></li>
+        <li>Additional mics for backing vocalists — prioritised list due May</li>
+        <li>Inverter/solar project — next major infrastructure goal</li>
+      </ul>
+    </div>
+    <div class="unit-card" style="--uc:#C06B23" data-months="feb mar apr">
+      <div class="unit-name">🤝 Ushering Unit</div>
+      <div class="unit-lead">Head Usher: Grace Onowhowhakpo</div>
+      <ul class="unit-items">
+        <li>Saturday cleaning consistent all months</li>
+        <li>All offerings remitted (60/40 split)</li>
+        <li>2 new members joined (Feb)</li>
+        <li>Table resolved (Mar) <span class="pill res">Closed</span></li>
+        <li>2 ceiling fans faulty — ~₦40,000 repair quote <span class="pill urg">Urgent</span></li>
+        <li>Fumigation — notify Parish Vicar first</li>
+        <li>AC/lights circuit fault flagged (Mar)</li>
+        <li>No challenges reported (Apr)</li>
+      </ul>
+    </div>
+    <div class="unit-card" style="--uc:#7B1FA2" data-months="feb mar apr">
+      <div class="unit-name">📱 PR / Media Unit</div>
+      <div class="unit-lead">PRO: Stephanie Leonard</div>
+      <ul class="unit-items">
+        <li>Content calendar: 4 posts/week</li>
+        <li>Birthday posts & church invites published</li>
+        <li>Live streaming failed Feb 1 — comms breakdown</li>
+        <li>Birthday cake moved to Welfare <span class="pill res">Corrected</span></li>
+        <li>Engineer Abosi & Timi Topware acting as unit leads</li>
+        <li>Stephanie's sustained absence raised (Apr) <span class="pill urg">Concern</span></li>
+        <li>Tobe Akaogu to speak to Stephanie directly</li>
+        <li>No media rep at Apr meeting — resolution: send unit rep</li>
+      </ul>
+    </div>
+    <div class="unit-card" style="--uc:var(--green)" data-months="feb mar apr">
+      <div class="unit-name">❤️ Welfare Unit</div>
+      <div class="unit-lead">Welfare Coordinator: Elizabeth Olaniyan</div>
+      <ul class="unit-items">
+        <li>New members welcomed; birthdays celebrated</li>
+        <li>Hospital visitation — gift raised ₦5K→₦10K (Feb)</li>
+        <li>ALton Wellness Talks — monthly (Feb onward)</li>
+        <li>All 2026 cake months pledged <span class="pill res">Secured</span></li>
+        <li>Food Bank — April 2026 <span class="pill pen">Planning</span></li>
+        <li>Help Desk / HelpDex — proposal to be developed (Apr)</li>
+        <li>Career Day proposed: May 24, 2026 (with Academic & Program)</li>
+        <li>Mother's Day — 2 cakes needed, budget ₦50,000</li>
+      </ul>
+    </div>
+    <div class="unit-card" style="--uc:var(--muted)" data-months="feb mar apr">
+      <div class="unit-name">📚 Academic Unit</div>
+      <div class="unit-lead">Coordinator: Muyiwa Ogunbowale</div>
+      <ul class="unit-items">
+        <li>No report submitted Feb — formal violation noted</li>
+        <li>Reasons given at Apr meeting</li>
+        <li>Spelling Bee — ownership taken, plan due May <span class="pill pen">Pending</span></li>
+        <li>Career Day / Future Leaders Summit — May 24 (tentative)</li>
+        <li>Library revival suggested by Chibuike Precious</li>
+        <li>Additional youth development activities to be proposed</li>
+      </ul>
+    </div>
+  </div>
+
+</div><!-- /units -->
+
+
+<!-- ═══════════════════ ACTION ITEMS ═══════════════════ -->
+<div class="tab-panel" id="tab-actions">
+
+  <div class="g4">
+    <div class="stat inv"><span class="ico">🔴</span><div class="val">7</div><div class="lbl">Urgent</div></div>
+    <div class="stat" style="--accent:var(--gold)"><span class="ico">🟡</span><div class="val">9</div><div class="lbl">Pending / KIV</div></div>
+    <div class="stat" style="--accent:var(--green)"><span class="ico">🟢</span><div class="val">7</div><div class="lbl">Resolved</div></div>
+    <div class="stat" style="--accent:#7986CB"><span class="ico">📌</span><div class="val">23</div><div class="lbl">Total Tracked</div></div>
+  </div>
+
+  <div class="panel">
+    <div class="panel-title"><span class="dot"></span>Full Action Item Tracker — Feb to Apr 2026</div>
+    <table class="tbl">
+      <thead><tr><th>#</th><th>Action Item</th><th>Owner</th><th>Month</th><th>Status</th></tr></thead>
+      <tbody>
+        <tr><td>1</td><td>Visit Rev'd Oluwakoya — confirmed Apr 19</td><td style="color:var(--muted);font-size:11px">Welfare / All Exco</td><td><span class="pill new">Apr</span></td><td><span class="pill res">Confirmed</span></td></tr>
+        <tr><td>2</td><td>Cymbal reimbursement ₦60,000 — Tobe Akaogu</td><td style="color:var(--muted);font-size:11px">Tobe Akaogu</td><td><span class="pill new">Apr</span></td><td><span class="pill res">Resolved</span></td></tr>
+        <tr><td>3</td><td>Floor monitors — resolved</td><td style="color:var(--muted);font-size:11px">Technical / Choir</td><td><span class="pill new">Apr</span></td><td><span class="pill res">Resolved</span></td></tr>
+        <tr><td>4</td><td>Snake cable — purchased</td><td style="color:var(--muted);font-size:11px">Technical Unit</td><td><span class="pill new">Apr</span></td><td><span class="pill res">Resolved</span></td></tr>
+        <tr><td>5</td><td>Drum booth backdrop — camera angle adjusted</td><td style="color:var(--muted);font-size:11px">Technical Unit</td><td><span style="color:var(--muted);font-size:11px">Mar</span></td><td><span class="pill res">Resolved</span></td></tr>
+        <tr><td>6</td><td>Table for Ushering Unit</td><td style="color:var(--muted);font-size:11px">Ushering Unit</td><td><span style="color:var(--muted);font-size:11px">Mar</span></td><td><span class="pill res">Resolved</span></td></tr>
+        <tr><td>7</td><td>Birthday cake moved from PR to Welfare</td><td style="color:var(--muted);font-size:11px">PR / Welfare</td><td><span style="color:var(--muted);font-size:11px">Mar</span></td><td><span class="pill res">Resolved</span></td></tr>
+        <tr><td>8</td><td>Technical Unit — scale-of-preference equipment list</td><td style="color:var(--muted);font-size:11px">Rolland Eze</td><td><span class="pill new">Apr</span></td><td><span class="pill pen">Due May</span></td></tr>
+        <tr><td>9</td><td>Spelling Bee — full plan & timeline</td><td style="color:var(--muted);font-size:11px">Academic Unit</td><td><span class="pill new">Apr</span></td><td><span class="pill pen">Due May</span></td></tr>
+        <tr><td>10</td><td>Career Day (May 24) — confirm date & content</td><td style="color:var(--muted);font-size:11px">Coordinator + Welfare + Academic</td><td><span class="pill new">Apr</span></td><td><span class="pill pen">Pending</span></td></tr>
+        <tr><td>11</td><td>HelpDex — proper fund-raising proposal</td><td style="color:var(--muted);font-size:11px">Welfare Unit</td><td><span class="pill new">Apr</span></td><td><span class="pill pen">Due May</span></td></tr>
+        <tr><td>12</td><td>Chapel expansion — raise at PCC table</td><td style="color:var(--muted);font-size:11px">Tope Olokungboye (PCC Rep)</td><td><span class="pill new">Apr</span></td><td><span class="pill pen">Pending</span></td></tr>
+        <tr><td>13</td><td>PR — Stephanie's absence; Tobe to speak to her</td><td style="color:var(--muted);font-size:11px">Tobe Akaogu</td><td><span class="pill new">Apr</span></td><td><span class="pill urg">Urgent</span></td></tr>
+        <tr><td>14</td><td>Media roster — Stephanie to assign team members</td><td style="color:var(--muted);font-size:11px">PR Unit</td><td><span style="color:var(--muted);font-size:11px">Feb</span></td><td><span class="pill urg">Ongoing</span></td></tr>
+        <tr><td>15</td><td>Ceiling fans — repair/replace recommendation with costs</td><td style="color:var(--muted);font-size:11px">Ushering Unit</td><td><span style="color:var(--muted);font-size:11px">Mar</span></td><td><span class="pill urg">Urgent</span></td></tr>
+        <tr><td>16</td><td>Fumigation — notify Parish Vicar before proceeding</td><td style="color:var(--muted);font-size:11px">Ushering Unit</td><td><span style="color:var(--muted);font-size:11px">Mar</span></td><td><span class="pill urg">Pending</span></td></tr>
+        <tr><td>17</td><td>Sound system servicing (~₦70,000)</td><td style="color:var(--muted);font-size:11px">Technical Unit</td><td><span style="color:var(--muted);font-size:11px">Mar</span></td><td><span class="pill urg">Urgent</span></td></tr>
+        <tr><td>18</td><td>Inverter/solar — load assessment & capacity proposal</td><td style="color:var(--muted);font-size:11px">Technical Unit</td><td><span style="color:var(--muted);font-size:11px">Mar</span></td><td><span class="pill pen">KIV</span></td></tr>
+        <tr><td>19</td><td>Vocal coach funding — house contribution discussion</td><td style="color:var(--muted);font-size:11px">Coordinator / House</td><td><span style="color:var(--muted);font-size:11px">Feb</span></td><td><span class="pill kiv">KIV</span></td></tr>
+        <tr><td>20</td><td>Wireless in-ear monitor — priced proposal</td><td style="color:var(--muted);font-size:11px">Choir + Technical</td><td><span style="color:var(--muted);font-size:11px">Feb</span></td><td><span class="pill kiv">KIV</span></td></tr>
+        <tr><td>21</td><td>Prayer rotation schedule — draw up & share</td><td style="color:var(--muted);font-size:11px">Chibuike Precious</td><td><span class="pill new">Apr</span></td><td><span class="pill pen">Pending</span></td></tr>
+        <tr><td>22</td><td>Library revival — plan & activities proposal</td><td style="color:var(--muted);font-size:11px">Academic Unit</td><td><span class="pill new">Apr</span></td><td><span class="pill pen">Pending</span></td></tr>
+        <tr><td>23</td><td>Outstanding fines (Feb/Mar) — settle before May meeting</td><td style="color:var(--muted);font-size:11px">Named individuals</td><td><span class="pill new">Apr</span></td><td><span class="pill urg">Urgent</span></td></tr>
+      </tbody>
+    </table>
+  </div>
+
+</div><!-- /actions -->
+
+
+<!-- ═══════════════════ FINES ═══════════════════ -->
+<div class="tab-panel" id="tab-fines">
+
+  <div class="g4">
+    <div class="stat inv"><span class="ico">⚖️</span><div class="val">₦7,500</div><div class="lbl">Total Fines (3 Months)</div><div class="sub">Feb + Mar + Apr 2026</div></div>
+    <div class="stat" style="--accent:var(--red)"><span class="ico">📋</span><div class="val">16</div><div class="lbl">Total Fine Entries</div><div class="sub">Across all three meetings</div></div>
+    <div class="stat" style="--accent:var(--gold)"><span class="ico">⏳</span><div class="val">₦4,000+</div><div class="lbl">Still Outstanding</div><div class="sub">Multiple Feb fines unpaid as at Apr</div></div>
+    <div class="stat" style="--accent:var(--green)"><span class="ico">📜</span><div class="val">₦500</div><div class="lbl">Per Violation</div><div class="sub">Interjecting without recognition</div></div>
+  </div>
+
+  <div class="g3">
+    <div class="panel">
+      <div class="panel-title"><span class="dot"></span>February 1, 2026</div>
+      <table class="fines-tbl">
+        <thead><tr><th>#</th><th>Name</th><th>Reason</th><th>Amt</th></tr></thead>
+        <tbody>
+          <tr><td>1</td><td>Esther Adejobi</td><td>Interjecting proceedings</td><td class="amt p">Pending</td></tr>
+          <tr><td>2</td><td>Stephnie Leonard</td><td>Interjecting Sis. Moturanyo (1st)</td><td class="amt p">Pending</td></tr>
+          <tr><td>3</td><td>Sister Melody</td><td>Interjecting Bro. Miracle</td><td class="amt p">Pending</td></tr>
+          <tr><td>4</td><td>Rowland</td><td>Interjecting proceedings</td><td class="amt p">Pending</td></tr>
+          <tr><td>5</td><td>Brother Ademola</td><td>Interjecting proceedings</td><td class="amt p">Pending</td></tr>
+          <tr><td>6</td><td>Stephnie Leonard</td><td>Interjecting (2nd instance)</td><td class="amt p">Pending</td></tr>
+          <tr><td>7</td><td>Brother Feni</td><td>Conduct violation</td><td class="amt p">Pending</td></tr>
+          <tr><td>8</td><td>Academic Unit Exec</td><td>Failure to present manifesto</td><td class="amt p">Pending</td></tr>
+        </tbody>
+      </table>
+      <div class="dec" style="margin-top:10px"><strong>Total:</strong> 7 × ₦500 = ₦3,500 confirmed + 1 pending (Academic Unit)</div>
+    </div>
+
+    <div class="panel">
+      <div class="panel-title"><span class="dot"></span>March 1, 2026</div>
+      <table class="fines-tbl">
+        <thead><tr><th>#</th><th>Name</th><th>Reason</th><th>Amt</th></tr></thead>
+        <tbody>
+          <tr><td>1</td><td>Sister Moturanyo</td><td>Interjecting without permission</td><td class="amt">₦500</td></tr>
+        </tbody>
+      </table>
+      <div class="dec" style="margin-top:10px"><strong>Total:</strong> 1 × ₦500 = ₦500 &nbsp;·&nbsp; 6 February fines still unpaid as at this meeting</div>
+      <div class="div"></div>
+      <div class="panel-title" style="margin-bottom:8px"><span class="dot"></span>Fine Enforcement Decision</div>
+      <div class="dec">All fines must be paid before or upon arrival at the following meeting. Executives with unpaid fines will be required to settle before participation.</div>
+    </div>
+
+    <div class="panel">
+      <div class="panel-title"><span class="dot"></span>April 12, 2026</div>
+      <table class="fines-tbl">
+        <thead><tr><th>#</th><th>Name</th><th>Reason</th><th>Amt</th></tr></thead>
+        <tbody>
+          <tr><td>1</td><td>Esther Adejobi</td><td>Interjecting without permission</td><td class="amt">₦500</td></tr>
+          <tr><td>2</td><td>Rolland Eze</td><td>Interjecting (1st instance)</td><td class="amt">₦500</td></tr>
+          <tr><td>3</td><td>Ademola Olatunji</td><td>Interjecting without permission</td><td class="amt">₦500</td></tr>
+          <tr><td>4</td><td>Chinonyem Onwuteaka</td><td>Interjecting without permission</td><td class="amt">₦500</td></tr>
+          <tr><td>5</td><td>Rolland Eze</td><td>Interjecting (2nd instance)</td><td class="amt">₦500</td></tr>
+          <tr><td>6</td><td>Bishop Ezirim</td><td>Interjecting without permission</td><td class="amt">₦500</td></tr>
+          <tr><td>7</td><td>Muyiwa Ogunbowale</td><td>Interjecting without permission</td><td class="amt">₦500</td></tr>
+        </tbody>
+      </table>
+      <div class="dec" style="margin-top:10px"><strong>Total:</strong> 7 × ₦500 = ₦3,500 &nbsp;·&nbsp; Rolland Eze fined twice in same meeting. Kunle (Financial Sec.) to settle Rolland's fine personally.</div>
+    </div>
+  </div>
+
+</div><!-- /fines -->
+
+
+<!-- ═══════════════════ MEMBERS ═══════════════════ -->
+<div class="tab-panel" id="tab-members">
+
+  <div class="g2">
+    <div class="panel">
+      <div class="panel-title"><span class="dot"></span>Official Executives List (Full Exco — April 2026)</div>
+      <table class="members-tbl">
+        <thead><tr><th class="num">#</th><th>Name</th><th>Office / Role</th></tr></thead>
+        <tbody>
+          <tr><td class="num">1</td><td class="coord">Rotimi Akintola</td><td class="coord">Coordinator</td></tr>
+          <tr><td class="num">2</td><td>Motunrayo Olokungboye</td><td>General Secretary</td></tr>
+          <tr><td class="num">3</td><td>Chikaodili Attamah</td><td>Assistant General Secretary</td></tr>
+          <tr><td class="num">4</td><td>Onakunle Onanibosi</td><td>Financial Secretary</td></tr>
+          <tr><td class="num">5</td><td>Olayinka Fadehin</td><td>Treasurer</td></tr>
+          <tr><td class="num">6</td><td>Ademola Olatunji</td><td>Program Coordinator</td></tr>
+          <tr><td class="num">7</td><td>Chinonyem Onwuteaka</td><td>Assistant Program Coordinator</td></tr>
+          <tr><td class="num">8</td><td>Chibuike Precious</td><td>Prayer & Evangelism Coordinator</td></tr>
+          <tr><td class="num">9</td><td>Esther Olaniyan</td><td>Assistant Prayer & Evangelism Coordinator</td></tr>
+          <tr><td class="num">10</td><td>Miracle Kuforiji</td><td>Music Director</td></tr>
+          <tr><td class="num">11</td><td>Melody Onanibosi</td><td>Assistant Music Director</td></tr>
+          <tr><td class="num">12</td><td>Rolland Eze</td><td>Technical Director</td></tr>
+          <tr><td class="num">13</td><td>Elizabeth Olaniyan</td><td>Welfare Coordinator</td></tr>
+          <tr><td class="num">14</td><td>Esther Adejobi</td><td>Assistant Welfare Coordinator</td></tr>
+          <tr><td class="num">15</td><td>Yetunde Wright</td><td>Assistant Head Usher / Sanctuary Keeper</td></tr>
+          <tr><td class="num">16</td><td>Stephanie Leonard</td><td>PRO</td></tr>
+          <tr><td class="num">17</td><td>Femi Adetunji</td><td>Media Coordinator</td></tr>
+          <tr><td class="num">18</td><td>Muyiwa Ogunbowale</td><td>Academic Coordinator</td></tr>
+          <tr><td class="num">19</td><td>Grace Onowhowhakpo</td><td>Head Usher / Sanctuary Keeper</td></tr>
+          <tr><td class="num">20</td><td>Onayemi Onanibosi</td><td>Assistant Coordinator</td></tr>
+          <tr><td class="num">21</td><td>Bishop Ezirim</td><td>Assistant Academic Coordinator</td></tr>
+          <tr><td class="num">22</td><td>Temitope Olokungboye</td><td>PCC Representative</td></tr>
+          <tr><td class="num">23</td><td>Samuel Ogunbadejo</td><td>Archdeaconry Representative</td></tr>
+          <tr><td class="num">24</td><td>Oluwaseun Ojo</td><td>Ex-Officio</td></tr>
+          <tr><td class="num">25</td><td>Michael Awoniyi</td><td>Ex-Officio</td></tr>
+          <tr><td class="num">26</td><td>Tobe Akaogu</td><td>Ex-Officio</td></tr>
+          <tr><td class="num">27</td><td>Raphael Awoniyi</td><td>Ex-Officio (Diaspora)</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div>
+      <div class="panel" style="margin-bottom:14px">
+        <div class="panel-title"><span class="dot"></span>Ex-Officio Executives (Introduced February)</div>
+        <table class="members-tbl">
+          <thead><tr><th class="num">#</th><th>Name</th><th>Role</th></tr></thead>
+          <tbody>
+            <tr><td class="num">1</td><td>Tobe Akaogu</td><td>Ex-Officio Executive</td></tr>
+            <tr><td class="num">2</td><td>Adefemi Adetifa</td><td>Ex-Officio Executive</td></tr>
+            <tr><td class="num">3</td><td>Raphael Awoniyi</td><td>Ex-Officio Executive (Diaspora)</td></tr>
+            <tr><td class="num">4</td><td>Temitope Olokungboye</td><td>Ex-Officio Executive</td></tr>
+            <tr><td class="num">5</td><td>Oluwaseun Ojo</td><td>SPACA Youth PCC Representative</td></tr>
+            <tr><td class="num">6</td><td>Faith Adekambi</td><td>Archdeaconry Representative</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <div class="panel">
+        <div class="panel-title"><span class="dot"></span>Attendance Summary</div>
+        <table class="members-tbl">
+          <thead><tr><th>Meeting</th><th>Present</th><th>Apology</th><th>Absent</th></tr></thead>
+          <tbody>
+            <tr><td>Feb 1, 2026</td><td style="color:var(--green);font-weight:600">18</td><td style="color:var(--gold)">2</td><td style="color:var(--red)">0</td></tr>
+            <tr><td>Mar 1, 2026</td><td style="color:var(--green);font-weight:600">16</td><td style="color:var(--gold)">5</td><td style="color:var(--red)">1</td></tr>
+            <tr><td>Apr 12, 2026</td><td style="color:var(--green);font-weight:600">22</td><td style="color:var(--gold)">5</td><td style="color:var(--red)">1</td></tr>
+          </tbody>
+        </table>
+        <div class="div"></div>
+        <div class="panel-title" style="margin-bottom:8px"><span class="dot"></span>April — Apologies Received</div>
+        <div style="font-size:12px;color:var(--dim);line-height:1.9">
+          Femi Adetunji (Media) · Grace Onowhowhakpo (Ushering) · Samuel Ogunbadejo · Femi Adetunji · Michael Awoniyi · Raphael Awoniyi<br>
+          <span style="color:var(--red)">Absent without permission:</span> Stephanie Leonard
+        </div>
+      </div>
+    </div>
+  </div>
+
+</div><!-- /members -->
+
+</div><!-- /main -->
+
+<script>
+// ── DATA ──────────────────────────────────────────────────────────
+const highlights = {
+  feb: {
+    title: "February 1, 2026 — Key Highlights",
+    items: [
+      { cls:'', n:'1', title:'Opening Exhortation — Bro. Olatunji Adeola', desc:'Servant leadership: commit time, treasure & talents. Ground rules set — ₦500 fine for interjecting.' },
+      { cls:'', n:'2', title:'Ex-Officio Executives Introduced', desc:'Tobe Akaogu, Adefemi Adetifa, Raphael Awoniyi (Diaspora), Temitope Olokungboye, Oluwaseun Ojo (PCC), Faith Adekambi (Archdeaconry).' },
+      { cls:'o', n:'3', title:'Drum Booth — Choir Issue Raised', desc:'Backdrop blocks drummer\'s view of congregation. Modification deferred to next redesign.' },
+      { cls:'o', n:'4', title:'Service Time Debate', desc:'Decision: time NOT extended. All units must adhere strictly to allocated slots.' },
+      { cls:'g', n:'5', title:'QR Attendance System Proposed', desc:'Pilot with executives first. Will capture first-timers, birthdays, and Bible study outlines.' },
+      { cls:'', n:'6', title:'Rev\'d Oluwakoya Honour Proposed', desc:'Welfare Unit to lead. Gift + visit or live video call during a Sunday service.' },
+    ]
+  },
+  mar: {
+    title: "March 1, 2026 — Key Highlights",
+    items: [
+      { cls:'', n:'1', title:'Exhortation — Sister Chika Attamah (1 Peter 5:10)', desc:'God will strengthen those who labour faithfully. Calling to serve is divinely orchestrated.' },
+      { cls:'o', n:'2', title:'Special Address — Rev. Akakpo (Parish Vicar)', desc:'Anglican identity, combined services, youth PCC inclusion (5 seats), chaplaincy vision for Chapel.' },
+      { cls:'o', n:'3', title:'Outstanding Fines Enforcement', desc:'All February fines unpaid. Resolution: fines must be settled before next meeting participation.' },
+      { cls:'g', n:'4', title:'Inverter / Solar Project Identified', desc:'Next major infrastructure project. Technical Unit to assess load and present proposal.' },
+      { cls:'', n:'5', title:'Easter Saturday — Visit to Rev\'d Oluwakoya', desc:'Proposed by Bro. Ademola. Welfare Unit to confirm date and logistics.' },
+      { cls:'g', n:'6', title:'Welfare Help Desk Launched', desc:'Mrs. Anonipusi (Sisters of Life) to lead confidential counselling platform under Welfare Unit.' },
+    ]
+  },
+  apr: {
+    title: "April 12, 2026 — Key Highlights",
+    items: [
+      { cls:'', n:'1', title:'Exhortation — Bro. Chibuike Precious', desc:'Do not grow weary in service. The race is run not by our power but by God\'s grace.' },
+      { cls:'g', n:'2', title:'Cymbal Reimbursed — ₦60,000', desc:'Tobe Akaogu personally offered 50% reimbursement. Church contribution also confirmed. Item closed.' },
+      { cls:'g', n:'3', title:'Floor Monitors & Snake Cable — Resolved', desc:'Both long-standing technical issues are now closed. Technical Unit appreciated the house.' },
+      { cls:'o', n:'4', title:'Visit to Rev\'d Oluwakoya — Confirmed', desc:'April 19, 2026 (after service). Gift: ₦500,000. Parish Vicar to be notified before the visit.' },
+      { cls:'o', n:'5', title:'PR / Media Absence Concern', desc:'No media rep at meeting. Tobe Akaogu to speak to Stephanie. Acting leads: Engineer Abosi & Timi Topware.' },
+      { cls:'', n:'6', title:'Chapel Expansion Raised', desc:'PCC Rep to formally raise at next PCC meeting. Executive members to meet Parish Vicar post-service.' },
+    ]
+  }
+};
+
+let currentMonth = 'feb';
+let chartsDrawn = {};
+
+// ── MONTH PILL ─────────────────────────────────────────────────────
+function setMonth(m, el) {
+  currentMonth = m;
+  document.querySelectorAll('.month-pill').forEach(p => p.classList.remove('active'));
+  el.classList.add('active');
+  renderHighlights();
+}
+
+function renderHighlights() {
+  const d = highlights[currentMonth];
+  document.getElementById('highlight-title').textContent = d.title;
+  const tl = document.getElementById('highlight-tl');
+  tl.innerHTML = d.items.map((item, i) => `
+    <div class="tl-item">
+      <div class="tl-dot ${item.cls}">${item.n}</div>
+      <div class="tl-body">
+        <div class="tl-title">${item.title}</div>
+        <div class="tl-desc">${item.desc}</div>
+      </div>
+    </div>
+  `).join('');
+}
+
+// ── UNIT FILTER ────────────────────────────────────────────────────
+function filterUnits(month, el) {
+  document.querySelectorAll('.ms-btn').forEach(b => b.classList.remove('active'));
+  el.classList.add('active');
+  document.querySelectorAll('.unit-card').forEach(card => {
+    if (month === 'all' || card.dataset.months.includes(month)) {
+      card.style.display = '';
+    } else {
+      card.style.display = 'none';
+    }
+  });
+}
+
+// ── TAB SWITCHING ──────────────────────────────────────────────────
+function switchTab(id, el) {
+  document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
+  document.getElementById('tab-' + id).classList.add('active');
+  el.classList.add('active');
+  if (id === 'overview' && !chartsDrawn.overview) drawOverview();
+  if (id === 'finance'  && !chartsDrawn.finance)  drawFinance();
+}
+
+// ── CHARTS ────────────────────────────────────────────────────────
+const RED   = '#C0232A';
+const GOLD  = '#C9952A';
+const GREEN = '#2A7A52';
+const BLUE  = '#3949AB';
+const GRAY  = '#333';
+const DIM   = '#444';
+
+Chart.defaults.color = '#666';
+Chart.defaults.font.family = 'Outfit';
+
+function drawOverview() {
+  chartsDrawn.overview = true;
+
+  // Attendance
+  new Chart(document.getElementById('attendChart'), {
+    type: 'bar',
+    data: {
+      labels: ['Feb 1', 'Mar 1', 'Apr 12'],
+      datasets: [
+        { label: 'Present', data: [18, 16, 22], backgroundColor: RED, borderRadius: 4 },
+        { label: 'Apology', data: [2, 5, 5],  backgroundColor: GOLD, borderRadius: 4 },
+        { label: 'Absent',  data: [0, 1, 1],  backgroundColor: GRAY, borderRadius: 4 },
+      ]
+    },
+    options: {
+      responsive: true, maintainAspectRatio: false,
+      plugins: { legend: { position: 'bottom', labels: { color: '#666', boxWidth: 10, padding: 8, font: { size: 10 } } } },
+      scales: {
+        x: { stacked: true, grid: { display: false }, ticks: { color: '#555' } },
+        y: { stacked: true, max: 28, grid: { color: '#1E1E1E' }, ticks: { color: '#555', stepSize: 7 } }
+      }
+    }
+  });
+
+  // Fines per meeting
+  new Chart(document.getElementById('finesChart'), {
+    type: 'bar',
+    data: {
+      labels: ['Feb 1', 'Mar 1', 'Apr 12'],
+      datasets: [{
+        label: 'Fines (₦)',
+        data: [3500, 500, 3500],
+        backgroundColor: [RED, GOLD, RED],
+        borderRadius: 4
+      }]
+    },
+    options: {
+      responsive: true, maintainAspectRatio: false,
+      plugins: { legend: { display: false } },
+      scales: {
+        x: { grid: { display: false }, ticks: { color: '#555' } },
+        y: { grid: { color: '#1E1E1E' }, ticks: { color: '#555', callback: v => '₦' + v.toLocaleString() } }
+      }
+    }
+  });
+
+  // Issues by unit
+  new Chart(document.getElementById('issuesChart'), {
+    type: 'doughnut',
+    data: {
+      labels: ['Technical', 'Choir', 'Welfare', 'Ushering', 'Academic', 'PR/Media', 'Program'],
+      datasets: [{
+        data: [6, 4, 4, 4, 3, 3, 2],
+        backgroundColor: [GOLD, RED, GREEN, '#C06B23', GRAY, '#7B1FA2', BLUE],
+        borderWidth: 2, borderColor: '#1C1C1C'
+      }]
+    },
+    options: {
+      responsive: true, maintainAspectRatio: false, cutout: '62%',
+      plugins: { legend: { position: 'right', labels: { color: '#666', boxWidth: 10, padding: 6, font: { size: 10 } } } }
+    }
+  });
+
+  // Status overview
+  new Chart(document.getElementById('statusChart'), {
+    type: 'doughnut',
+    data: {
+      labels: ['Resolved', 'Pending / KIV', 'Urgent'],
+      datasets: [{
+        data: [7, 9, 7],
+        backgroundColor: [GREEN, GOLD, RED],
+        borderWidth: 2, borderColor: '#1C1C1C'
+      }]
+    },
+    options: {
+      responsive: true, maintainAspectRatio: false, cutout: '62%',
+      plugins: { legend: { position: 'right', labels: { color: '#666', boxWidth: 10, padding: 10, font: { size: 11 } } } }
+    }
+  });
+}
+
+function drawFinance() {
+  chartsDrawn.finance = true;
+
+  new Chart(document.getElementById('incomeChart'), {
+    type: 'doughnut',
+    data: {
+      labels: ['Bank Donations', 'Cash Received', 'Opening Cash', 'FCMB Interest'],
+      datasets: [{
+        data: [764016, 33100, 20600, 3049],
+        backgroundColor: [GREEN, '#4CAF82', '#8FD4A8', '#BDE8CC'],
+        borderWidth: 2, borderColor: '#1C1C1C'
+      }]
+    },
+    options: {
+      responsive: true, maintainAspectRatio: false, cutout: '58%',
+      plugins: {
+        legend: { position: 'bottom', labels: { color: '#666', boxWidth: 10, padding: 6, font: { size: 10 } } },
+        tooltip: { callbacks: { label: ctx => ' ₦' + ctx.parsed.toLocaleString() } }
+      }
+    }
+  });
+
+  new Chart(document.getElementById('expendChart'), {
+    type: 'doughnut',
+    data: {
+      labels: ['Instrumental Support', 'Birthday Cake', 'Drumstick', 'Bank Charges'],
+      datasets: [{
+        data: [80000, 25000, 9500, 1465],
+        backgroundColor: [RED, '#8B1A1F', GOLD, GRAY],
+        borderWidth: 2, borderColor: '#1C1C1C'
+      }]
+    },
+    options: {
+      responsive: true, maintainAspectRatio: false, cutout: '58%',
+      plugins: {
+        legend: { position: 'bottom', labels: { color: '#666', boxWidth: 10, padding: 6, font: { size: 10 } } },
+        tooltip: { callbacks: { label: ctx => ' ₦' + ctx.parsed.toLocaleString() } }
+      }
+    }
+  });
+}
+
+// ── INIT ──────────────────────────────────────────────────────────
+window.addEventListener('load', () => {
+  renderHighlights();
+  drawOverview();
+});
+</script>
+</body>
+</html>
